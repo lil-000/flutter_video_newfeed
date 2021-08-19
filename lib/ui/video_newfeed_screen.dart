@@ -17,6 +17,7 @@ class VideoNewFeedScreen<V extends VideoInfo> extends StatefulWidget {
 
   final ScreenConfig screenConfig;
   final VideoNewFeedApi<V> api;
+  final Widget Function(BuildContext context, V v)? customVideoInfoWidget;
 
   VideoNewFeedScreen({
     this.keepPage = false,
@@ -24,6 +25,7 @@ class VideoNewFeedScreen<V extends VideoInfo> extends StatefulWidget {
       backgroundColor: Colors.black,
       loadingWidget: CircularProgressIndicator(),
     ),
+    this.customVideoInfoWidget,
     required this.api,
   });
 
@@ -112,7 +114,7 @@ class _VideoNewFeedScreenState<V extends VideoInfo>
   /// Page View
   ///
   Widget _renderVideoPageView() {
-    return StreamBuilder<List<VideoInfo>>(
+    return StreamBuilder<List<V>>(
         stream: _listVideoStream.stream,
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.isEmpty)
@@ -131,8 +133,9 @@ class _VideoNewFeedScreenState<V extends VideoInfo>
             itemCount: snapshot.data!.length,
             onPageChanged: (page) {},
             itemBuilder: (context, index) {
-              return VideoItemWidget(
+              return VideoItemWidget<V>(
                 videoInfo: snapshot.data![index],
+                customVideoInfoWidget: widget.customVideoInfoWidget,
                 pageIndex: index,
                 currentPageIndex: _currentPage,
                 isPaused: _isOnPageTurning,
